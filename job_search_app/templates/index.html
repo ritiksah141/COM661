@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search App</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+        .search-box { text-align: center; margin-bottom: 30px; }
+        input[type="text"] { padding: 10px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        
+        .job-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .job-title { font-size: 1.2em; font-weight: bold; color: #007bff; }
+        .company { color: #555; font-weight: bold; margin-top: 5px; }
+        .location { color: #777; font-size: 0.9em; margin-bottom: 10px; }
+        .apply-btn { display: inline-block; text-decoration: none; background: #007bff; color: white; padding: 8px 12px; border-radius: 4px; font-size: 0.9em; }
+        .error { color: red; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <h1>🔍 Job Search Engine</h1>
+
+    <style>
+        /* Add these new styles to your existing <style> block */
+        .filter-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap; /* Wraps on small screens */
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .filter-group label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        /* Make the title input slightly wider */
+        input[name="job_role"] { width: 250px; }
+        input[name="location"] { width: 150px; }
+        select { width: 150px; background-color: white; }
+        
+        .search-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            height: 42px; /* Match input height */
+            align-self: flex-end; /* Align with input boxes */
+        }
+        .search-btn:hover { background-color: #0056b3; }
+    </style>
+
+    <form method="POST" class="filter-container">
+        
+        <div class="filter-group">
+            <label>What role?</label>
+            <input type="text" name="job_role" placeholder="e.g. Software Engineer" value="{{ current_role }}" required>
+        </div>
+
+        <div class="filter-group">
+            <label>Where?</label>
+            <input type="text" name="location" placeholder="e.g. London, TX" value="{{ current_loc }}">
+        </div>
+
+        <div class="filter-group">
+            <label>Type</label>
+            <select name="job_type">
+                <option value="">Any Type</option>
+                <option value="FULLTIME" {% if current_type == 'FULLTIME' %}selected{% endif %}>Full Time</option>
+                <option value="CONTRACTOR" {% if current_type == 'CONTRACTOR' %}selected{% endif %}>Contractor</option>
+                <option value="PARTTIME" {% if current_type == 'PARTTIME' %}selected{% endif %}>Part Time</option>
+                <option value="INTERN" {% if current_type == 'INTERN' %}selected{% endif %}>Internship</option>
+            </select>
+        </div>
+
+        <button type="submit" class="search-btn">Find Jobs</button>
+    </form>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <div>
+        {% if jobs %}
+            {% for job in jobs %}
+            <div class="job-card">
+                <div class="job-title">{{ job.job_title }}</div>
+                <div class="company">{{ job.employer_name }}</div>
+                <div class="location">📍 {{ job.job_city or "Remote" }}, {{ job.job_country }}</div>
+                
+                <p>{{ job.job_description[:150] }}...</p>
+
+                <a href="/job/{{ job.job_id }}" class="apply-btn" style="background-color: #17a2b8;">View Details</a>
+                
+                <a href="{{ job.job_google_link or job.job_apply_link }}" target="_blank" class="apply-btn">Apply Now</a>
+            </div>
+            {% endfor %}
+        {% elif search_query and not error %}
+            <p style="text-align:center">No jobs found for "{{ search_query }}".</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

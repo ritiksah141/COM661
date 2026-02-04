@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ job.job_title }} - Details</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* Header Section */
+        .header { border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 20px; }
+        h1 { margin: 0; color: #007bff; }
+        .company { font-size: 1.2em; font-weight: bold; color: #555; margin-top: 10px; }
+        .meta { color: #777; margin-top: 5px; }
+
+        /* Description formatting */
+        .description { line-height: 1.6; white-space: pre-line; /* Preserves paragraphs */ }
+        
+        /* Highlights (Requirements/Benefits) */
+        .highlights { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .highlights h3 { margin-top: 0; }
+
+        /* Buttons */
+        .btn-container { margin-top: 30px; display: flex; gap: 10px; }
+        .btn { padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .apply { background-color: #28a745; color: white; }
+        .back { background-color: #6c757d; color: white; }
+        .btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>{{ job.job_title }}</h1>
+        <div class="company">{{ job.employer_name }}</div>
+        <div class="meta">
+            📍 {{ job.job_city or "Remote" }}, {{ job.job_country }} <br>
+            💼 {{ job.job_employment_type }} 
+            {% if job.job_is_remote %} (Remote Work) {% endif %}
+        </div>
+    </div>
+
+    {% if job.job_highlights %}
+    <div class="highlights">
+        <h3>✨ Highlights</h3>
+        <ul>
+            {% for key, items in job.job_highlights.items() %}
+                <li><strong>{{ key|title }}:</strong> {{ items[0] if items else 'N/A' }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <h3>📝 Job Description</h3>
+    <div class="description">
+        {{ job.job_description }}
+    </div>
+
+    <div class="btn-container">
+        <a href="{{ job.job_google_link or job.job_apply_link }}" target="_blank" class="btn apply">Apply Now 🚀</a>
+        <a href="/" class="btn back">← Back to Search</a>
+    </div>
+</div>
+
+</body>
+</html>
