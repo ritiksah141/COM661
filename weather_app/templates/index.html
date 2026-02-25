@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyWatch - Weather Forecast</title>
+    
+    <!-- Google Fonts - Using distinctive typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables - Store reusable values like colors */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --text-dark: #2d3748;
+            --text-light: #ffffff;
+            --bg-light: #f7fafc;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+            --shadow-hover: 0 30px 80px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Reset default browser styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Body styling with animated gradient background */
+        body {
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        /* Keyframes for animated background */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Main container */
+        .container {
+            max-width: 500px;
+            width: 100%;
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* App title */
+        .app-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            letter-spacing: -1px;
+        }
+        
+        .app-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        /* Search card */
+        .search-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-5px);
+        }
+        
+        /* Search form */
+        .search-form {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 18px 24px;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-button {
+            padding: 18px 35px;
+            border: none;
+            border-radius: 50px;
+            background: var(--primary-gradient);
+            color: var(--text-light);
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .search-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Loading spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--text-light);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Error message */
+        .error {
+            display: none;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(238, 90, 111, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        /* Weather result card */
+        .weather-result {
+            display: none;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 45px;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .location {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .city-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+        
+        .country {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        /* Temperature display */
+        .temperature-section {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .weather-icon {
+            font-size: 120px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+        }
+        
+        .temperature {
+            font-size: 5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 1.3rem;
+            color: #4a5568;
+            text-transform: capitalize;
+            font-weight: 500;
+        }
+        
+        .feels-like {
+            color: #718096;
+            margin-top: 8px;
+            font-size: 1rem;
+        }
+        
+        /* Weather details grid */
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+        
+        .detail-item {
+            text-align: center;
+            padding: 20px 10px;
+            background: var(--bg-light);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .detail-item:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            transform: translateY(-5px);
+        }
+        
+        .detail-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .detail-label {
+            font-size: 0.85rem;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        /* Responsive design for mobile */
+        @media (max-width: 600px) {
+            .app-title {
+                font-size: 2.5rem;
+            }
+            
+            .search-card, .weather-result {
+                padding: 25px;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .temperature {
+                font-size: 4rem;
+            }
+            
+            .weather-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- App Title -->
+        <h1 class="app-title">SkyWatch</h1>
+        <p class="app-subtitle">Discover weather conditions worldwide</p>
+        
+        <!-- Search Card -->
+        <div class="search-card">
+            <form id="weatherForm" class="search-form">
+                <input 
+                    type="text" 
+                    id="cityInput" 
+                    class="search-input" 
+                    placeholder="Enter city name..."
+                    required
+                >
+                <button type="submit" class="search-button">Search</button>
+            </form>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Fetching weather data...</p>
+        </div>
+        
+        <!-- Error Message -->
+        <div id="error" class="error"></div>
+        
+        <!-- Weather Result -->
+        <div id="weatherResult" class="weather-result">
+            <div class="location">
+                <h2 class="city-name" id="cityName"></h2>
+                <p class="country" id="country"></p>
+            </div>
+            
+            <div class="temperature-section">
+                <div class="weather-icon" id="weatherIcon"></div>
+                <div class="temperature" id="temperature"></div>
+                <p class="description" id="description"></p>
+                <p class="feels-like" id="feelsLike"></p>
+            </div>
+            
+            <div class="weather-details">
+                <div class="detail-item">
+                    <div class="detail-icon">💧</div>
+                    <div class="detail-label">Humidity</div>
+                    <div class="detail-value" id="humidity"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">💨</div>
+                    <div class="detail-label">Wind Speed</div>
+                    <div class="detail-value" id="windSpeed"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">🌡️</div>
+                    <div class="detail-label">Pressure</div>
+                    <div class="detail-value" id="pressure"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Get references to DOM elements
+        // DOM = Document Object Model (the HTML structure)
+        const form = document.getElementById('weatherForm');
+        const cityInput = document.getElementById('cityInput');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const weatherResult = document.getElementById('weatherResult');
+        
+        // Weather icon mapping
+        // OpenWeather provides icon codes, we map them to emojis
+        const iconMap = {
+            '01d': '☀️',  // clear sky day
+            '01n': '🌙',  // clear sky night
+            '02d': '⛅',  // few clouds day
+            '02n': '☁️',  // few clouds night
+            '03d': '☁️',  // scattered clouds
+            '03n': '☁️',
+            '04d': '☁️',  // broken clouds
+            '04n': '☁️',
+            '09d': '🌧️',  // shower rain
+            '09n': '🌧️',
+            '10d': '🌦️',  // rain day
+            '10n': '🌧️',  // rain night
+            '11d': '⛈️',  // thunderstorm
+            '11n': '⛈️',
+            '13d': '❄️',  // snow
+            '13n': '❄️',
+            '50d': '🌫️',  // mist
+            '50n': '🌫️'
+        };
+        
+        // Event listener for form submission
+        // This runs when the user clicks "Search"
+        form.addEventListener('submit', async (e) => {
+            // Prevent the default form submission (which would reload the page)
+            e.preventDefault();
+            
+            // Get the city name from the input field
+            const city = cityInput.value.trim();
+            
+            // Validate that user entered something
+            if (!city) {
+                showError('Please enter a city name');
+                return;
+            }
+            
+            // Show loading, hide previous results/errors
+            showLoading();
+            
+            try {
+                // Make a POST request to our Flask backend
+                // fetch() is a modern way to make HTTP requests in JavaScript
+                const response = await fetch('/weather', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    // Send the city name as JSON
+                    body: JSON.stringify({ city: city })
+                });
+                
+                // Parse the JSON response
+                const data = await response.json();
+                
+                // Check if the request was successful
+                if (response.ok) {
+                    // Display the weather data
+                    displayWeather(data);
+                } else {
+                    // Show error message from backend
+                    showError(data.error || 'Something went wrong');
+                }
+            } catch (err) {
+                // Catch network errors or other issues
+                showError('Failed to fetch weather data. Please check your connection.');
+                console.error('Error:', err);
+            }
+        });
+        
+        // Function to display weather data
+        function displayWeather(data) {
+            // Hide loading and error
+            loading.style.display = 'none';
+            error.style.display = 'none';
+            
+            // Update all the weather information
+            document.getElementById('cityName').textContent = data.city;
+            document.getElementById('country').textContent = data.country;
+            document.getElementById('weatherIcon').textContent = iconMap[data.icon] || '🌤️';
+            document.getElementById('temperature').textContent = `${data.temperature}°C`;
+            document.getElementById('description').textContent = data.description;
+            document.getElementById('feelsLike').textContent = `Feels like ${data.feels_like}°C`;
+            document.getElementById('humidity').textContent = `${data.humidity}%`;
+            document.getElementById('windSpeed').textContent = `${data.wind_speed} m/s`;
+            document.getElementById('pressure').textContent = `${data.pressure} hPa`;
+            
+            // Show the weather result card
+            weatherResult.style.display = 'block';
+        }
+        
+        // Function to show loading state
+        function showLoading() {
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            weatherResult.style.display = 'none';
+        }
+        
+        // Function to show error message
+        function showError(message) {
+            loading.style.display = 'none';
+            weatherResult.style.display = 'none';
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

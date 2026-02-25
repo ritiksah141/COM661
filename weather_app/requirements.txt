@@ -1,0 +1,11 @@
+# Flask - The web framework we're using
+Flask==3.0.0
+
+# Requests - For making HTTP requests to the weather API
+requests==2.31.0
+
+# Python-dotenv - For loading environment variables from .env file
+python-dotenv==1.0.0
+
+# Werkzeug - Flask dependency (security utilities)
+Werkzeug==3.0.1
