@@ -1,0 +1,38 @@
+<h2> This is my new sub component called Businesses</h2>
+<h3> The total number of businesses is {{businesses_list.length}}</h3>
+
+
+
+<div class="container">
+<div class="row">
+<div class="col-sm-12">
+@for(business of businesses_list;
+    track business.name) {
+        <div class="card text-white bg-secondary mb-3">
+        <div class="card-header">
+        {{ business.name }}
+        </div>
+        <div class="card-body">
+        This business is based in
+        {{ business.town }}
+        </div>
+        <div class="card-footer">
+        Rating: {{ business.rating }}
+        </div>
+        </div>
+    }
+</div>
+<div class="row">
+    <div class="col-sm-4">
+    <button class="btn btn-primary"
+    (click)="previousPage()">Previous</button>
+    </div>
+    <div class="col-sm-4 text-center align-self-center">
+    Showing page {{ page }}
+    of {{ lastPageNumber }}
+    </div>
+    <div class="col-sm-4 text-end">
+    <button class="btn btn-primary"
+    (click)="nextPage()">Next</button>
+    </div>
+</div>
